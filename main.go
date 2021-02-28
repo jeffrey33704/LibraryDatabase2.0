@@ -18,6 +18,8 @@ func main() {
 		fmt.Println("there was an error: ", err)
 	}
 	defer database.DBCon.Close()
+	statement, _ := database.DBCon.Prepare("CREATE TABLE IF NOT EXISTS library (id INTEGER PRIMARY KEY, author TEXT, title TEXT, publish_date TEXT, isbn TEXT)")
+	statement.Exec()
 	TerminalClear.CallClear()
 	menu.Menu()
 }
