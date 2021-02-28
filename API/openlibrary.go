@@ -21,11 +21,12 @@ type OLData struct {
 }
 
 type Authors []struct {
-	Name	string	`json:"name"`
+	Name	string	`json:"name,omitempty"`
 }
 
 type Identifiers struct {
-	ISBN13	[]string	`json:"isbn_13"`
+	ISBN10	[]string	`json:"isbn_10,omitempty"`
+	ISBN13	[]string	`json:"isbn_13,omitempty"`
 }
 
 
@@ -78,7 +79,12 @@ func OpenLibrary(isbn string) (string, string, string, string, bool) {
 			d, _ := dateparse.ParseLocal(OLPubDate)
 			OLPubDate = d.Format("2006")
 		}
-		OLISBN = v.Identifiers.ISBN13[0]
+
+		if len(v.Identifiers.ISBN10) == 0 {
+			OLISBN = v.Identifiers.ISBN13[0]
+		} else {
+			OLISBN = v.Identifiers.ISBN10[0]
+		}
 	}
 
 	return OLTitle, OLAuthor, OLPubDate, OLISBN, true

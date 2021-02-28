@@ -20,12 +20,12 @@ type Result struct {
 		VolumeInfo struct {
 			Title			string		`json:"title"`
 			Subtitle		string		`json:"subtitle,omitempty"`
-			Authors			[]string	`json:"authors"`
+			Authors			[]string	`json:"authors,omitempty"`
 			PublishedDate	string		`json:"publishedDate"`
 			IndustryIdentifiers	[]struct {
-				Type		string	`json:"type"`
-				Identifier	string	`json:"identifier"`
-			} `json:"industryIdentifiers"`
+				Type		string	`json:"type,omitempty"`
+				Identifier	string	`json:"identifier,omitempty"`
+			} `json:"industryIdentifiers,omitempty"`
 		} `json:"volumeInfo"`
 	} `json:"items"`
 }
@@ -82,13 +82,15 @@ func GoogleAPI(isbn string) (string, string, string, string, bool) {
 		return "", "", "", "", false
 	}
 
+	if len(result.Items[0].VolumeInfo.Authors) == 0 {
+		return "", "", "", "", false
+	}
+
 	book := Book{
 		Title: result.Items[0].VolumeInfo.Title,
 		Subtitle: result.Items[0].VolumeInfo.Subtitle,
 		Authors: result.Items[0].VolumeInfo.Authors,
 		PubDate: result.Items[0].VolumeInfo.PublishedDate,
-		ISBN: result.Items[0].VolumeInfo.IndustryIdentifiers[1].Identifier,
-
 	}
 
 	parsedAuthor := fullname_parser.ParseFullname(book.Authors[0])
@@ -110,9 +112,13 @@ func GoogleAPI(isbn string) (string, string, string, string, bool) {
 	} else {
 		GPubDate = book.PubDate
 	}
-	GISBN = book.ISBN
-	if len(GISBN) < 13 {
+
+	if result.Items[0].VolumeInfo.IndustryIdentifiers[0].Type == "ISBN_13" {
 		GISBN = result.Items[0].VolumeInfo.IndustryIdentifiers[0].Identifier
+	} else if result.Items[0].VolumeInfo.IndustryIdentifiers[0].Type == "ISBN_10" {
+		GISBN = result.Items[0].VolumeInfo.IndustryIdentifiers[1].Identifier
+	} else {
+		GISBN = isbn
 	}
 
 	return GTitle, GAuthor, GPubDate, GISBN, true
