@@ -21,6 +21,7 @@ func Menu() {
 			"List Catalog",
 			"Add New (ISBN)",
 			"Add New (Manual)",
+			"Scan ISBN",
 			"Delete Entry",
 			"Quit",
 		},
@@ -51,6 +52,11 @@ func Menu() {
 	case "Add New (Manual)":
 		TerminalClear.CallClear()
 		SQL.AddBook(API.ManualAdd())
+		Menu()
+	case "Scan ISBN":
+		TerminalClear.CallClear()
+		WebcamISBN := API.ExportISBN()
+		SQL.AddBook(API.AddISBN(WebcamISBN))
 		Menu()
 	case "Delete Entry":
 		SQL.DeleteBook()
