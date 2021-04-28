@@ -1,4 +1,4 @@
-package TerminalClear
+package terminalClear
 
 import (
 	"os"
